@@ -90,7 +90,7 @@ Built with Node js, using ExpressJs framework and other libraries.
 
 For more documentation , check it out below!
 
-<a  href="https://documenter.getpostman.com/view/13530339/TW6xoU7C">
+<a  href="https://documenter.getpostman.com/view/13532274/TzXzEcpE">
 
 <img  src="https://img.shields.io/badge/Documentation-POSTMAN-blue.svg?style=popout&logo=postman"/>
 
