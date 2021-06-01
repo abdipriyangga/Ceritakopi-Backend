@@ -23,6 +23,6 @@ exports.deleteItem = (id, cb) => {
 };
 
 // Search and Sort
-exports.getItemSearchAndSort = (search, sort, cb) => {
-    myDb.query(`SELECT items.id, items.name, items.images, items.price, items.id_category, items.detail, categories.id as category_id, categories.name as category_name FROM items LEFT JOIN categories ON categories.id = items.id_category WHERE items.name LIKE ? OR categories.name LIKE ? ORDER BY items.created_at ${sort}`, [search], cb);
+exports.getItemSearchAndSort = (search, order, value, cb) => {
+    myDb.query(`SELECT items.id, items.name, items.images, items.price as price, items.id_category, items.detail, categories.name as category_name, items.created_at as newest FROM items LEFT JOIN categories ON categories.id = items.id_category WHERE items.name LIKE '%${search}%' ORDER BY ${order} ${value}`, [search, order, value], cb);
 };

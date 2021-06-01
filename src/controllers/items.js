@@ -8,7 +8,7 @@ exports.getItems = (req, res) => {
             return formResponse(res, 200, true, 'List of items', results);
         }
         else {
-            return formResponse(res, 500, false, 'Bad request');
+            return formResponse(res, 500, false, 'An error occured');
         }
     });
 };
@@ -33,7 +33,7 @@ exports.updateItem = (req, res) => {
                     }
                     else {
                         console.error(err);
-                        return formResponse(res, 500, false, 'Bad request');
+                        return formResponse(res, 500, false, 'An error occured');
                     }
                 });
             }
@@ -42,29 +42,33 @@ exports.updateItem = (req, res) => {
             }
         }
         else {
-            return formResponse(res, 500, false, 'Bad request');
+            return formResponse(res, 500, false, 'An error occured');
         }
     });
 };
 
 // Search and Sort
 exports.getItemSearchAndSort = (req, res) => {
-    const sort = req.query.sort;
-    const search = req.query.q;
-    itemModel.getItemSearchAndSort(search, sort, (err, results, _field) => {
-        if(!err) {
-            if (results.length > 0) {
-                return formResponse(res, 200, true, 'Search items', results);
+    const order = req.query.sortBy || 'newest';
+    const value = req.query.value || 'asc';
+    const search = req.query.q || '';
+    itemModel.getItemSearchAndSort(search, order, value, (err, results, _field) => {
+        if(!err) {  
+            if(results.length > 0) {
+                return formResponse(res, 200, true, `Items search by ${search}`, results);
             } else {
                 return formResponse(res, 404, false, 'Item not found');
             }
         } 
         else {
             console.log('hello');
+            console.error(err);
             return formResponse(res, 500, false, 'An error occured');
         }
+        
     });
 };
+
 exports.getDetailItem = (req, res) => {
     const {id:stringId} = req.params;
     const id = parseInt(stringId);
@@ -78,7 +82,7 @@ exports.getDetailItem = (req, res) => {
             }
         }
         else {
-            return formResponse(res, 500, false, 'Bad Request!');
+            return formResponse(res, 500, false, 'An error occured!');
         }
     });
 };
@@ -104,7 +108,7 @@ exports.deleteItem = (req, res) => {
             }
         }
         else {
-            return formResponse(res, 500, false, 'Bad request');
+            return formResponse(res, 500, false, 'An error occured');
         }
     });
 };

@@ -3,10 +3,10 @@ const itemsRouter = express.Router();
 const itemsController = require('../controllers/items');
 
 
-itemsRouter.get('/', itemsController.getItems);
 itemsRouter.get('/search', itemsController.getItemSearchAndSort);
-itemsRouter.get('/:id', itemsController.getDetailItem);
+itemsRouter.get('/', itemsController.getItems);
 itemsRouter.post('/', itemsController.addItem);
+itemsRouter.get('/:id', itemsController.getDetailItem);
 itemsRouter.patch('/:id', itemsController.updateItem);
 itemsRouter.delete('/:id', itemsController.deleteItem);
 
