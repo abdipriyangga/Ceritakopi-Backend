@@ -2,7 +2,6 @@ const express = require('express');
 const itemsRouter = express.Router();
 const itemsController = require('../controllers/items');
 
-
 itemsRouter.get('/search', itemsController.getItemSearchAndSort);
 itemsRouter.get('/', itemsController.getItems);
 itemsRouter.post('/', itemsController.addItem);

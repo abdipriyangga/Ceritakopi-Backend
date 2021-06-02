@@ -14,8 +14,12 @@ exports.getItems = (req, res) => {
 };
 
 exports.addItem = (req, res) => {
-    itemModel.addItem(req.body, () => {
-        return formResponse(res, 200, true, 'Create item has been successfully!');
+    itemModel.addItem(req.body, (err) => {
+        if (!err) {
+            return formResponse(res, 200, true, 'Create item has been successfully!');
+        } else {
+            return formResponse(res, 400, false, 'Bad Request!');
+        }
     });
 };
 
@@ -61,7 +65,6 @@ exports.getItemSearchAndSort = (req, res) => {
             }
         } 
         else {
-            console.log('hello');
             console.error(err);
             return formResponse(res, 500, false, 'An error occured');
         }
@@ -95,11 +98,11 @@ exports.deleteItem = (req, res) => {
             if(results.length > 0) {
                 itemModel.deleteItem(id, (err,results, _fields) => {
                     if(!err) {
-                        return formResponse(res, 200, true, `item with id ${id} has been delete!`);
+                        return formResponse(res, 200, true, `item with id ${id} has been deleted!`);
                     }
                     else {
                         console.error(err);
-                        return formResponse(res, 500, false, 'Bad request');
+                        return formResponse(res, 500, false, 'An error occured');
                     }
                 });
             }
