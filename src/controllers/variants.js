@@ -1,12 +1,12 @@
 /* eslint-disable no-unused-vars */
-const categoriesModel = require('../models/categories');
+const variantsModel = require('../models/categories');
 const {response:formResponse} = require('../helpers/formResponse');
 
 
-exports.getCategories = (req, res) => {
-    categoriesModel.getCategories((err, results, _fields) => {
+exports.getVariants = (req, res) => {
+    variantsModel.getvariants((err, results, _fields) => {
         if(!err) {
-            return formResponse(res, 200, true, 'List of categories', results);
+            return formResponse(res, 200, true, 'List of variants', results);
         }
         else {
             return formResponse(res, 500, false, 'An error occured');
@@ -14,26 +14,26 @@ exports.getCategories = (req, res) => {
     });
 };
 
-exports.addCategories = (req, res) => {
-    categoriesModel.addCategories(req.body, (err) => {
+exports.addVariants = (req, res) => {
+    variantsModel.addVariants(req.body, (err) => {
         if (!err) {
-            return formResponse(res, 200, true, 'Create categories has been successfully!');
+            return formResponse(res, 200, true, 'Create variants has been successfully!');
         } else {
             return formResponse(res, 400, false, 'Bad Request!');
         }
     });
 };
 
-exports.getDetailCategories = (req, res) => {
+exports.getDetailVariants= (req, res) => {
     const {id:stringId} = req.params;
     const id = parseInt(stringId);
-    categoriesModel.getCategoriesById(id, (err, results, _fields) => {
+    variantsModel.getVariantsById(id, (err, results, _fields) => {
         if(!err){
             if(results.length === 1) {
-                return formResponse(res, 200, true, 'Detail Categories', results[0]);
+                return formResponse(res, 200, true, 'Detail variants', results[0]);
             }
             else {
-                return formResponse(res, 404, false, 'Categories not Found!');
+                return formResponse(res, 404, false, 'Variant not Found!');
             }
         }
         else {
@@ -43,17 +43,17 @@ exports.getDetailCategories = (req, res) => {
 };
 
 
-exports.updateCategories = (req, res) => {
+exports.updateVariants = (req, res) => {
     const {id} = req.params;
-    categoriesModel.getCategoriesById(id, (err, results, _fields) => {
+    variantsModel.getVariantsById(id, (err, results, _fields) => {
         if(!err) {
             if(results.length > 0) {
                 // const {name, images, price, id_category, detail} = req.body;
                 // const updatedData = {id, name, images, price, id_category, detail, updated_at:timeHelper.now()};
                 const data = req.body;
-                categoriesModel.updateCategories(data,id, (err,results, _fields) => {
+                variantsModel.updateVariants(data,id, (err,results, _fields) => {
                     if(!err) {
-                        return formResponse(res, 200, true, `Categeories with id ${id} updated successfully!`);
+                        return formResponse(res, 200, true, `Variant with id ${id} updated successfully!`);
                     }
                     else {
                         console.error(err);
@@ -62,7 +62,7 @@ exports.updateCategories = (req, res) => {
                 });
             }
             else {
-                return formResponse(res, 404, false, 'Categories not found!');
+                return formResponse(res, 404, false, 'Variants not found!');
             }
         }
         else {
@@ -71,15 +71,15 @@ exports.updateCategories = (req, res) => {
     });
 };
 
-exports.deleteCategories = (req, res) => {
+exports.deleteVariants = (req, res) => {
     const {id:stringId} = req.params;
     const id = parseInt(stringId);
-    categoriesModel.getCategoriesById(id, (err, results, _fields) => {
+    variantsModel.getVariantsById(id, (err, results, _fields) => {
         if(!err) {
             if(results.length > 0) {
-                categoriesModel.deleteCategories(id, (err,results, _fields) => {
+                variantsModel.deleteVariants(id, (err,results, _fields) => {
                     if(!err) {
-                        return formResponse(res, 200, true, `categories with id ${id} has been deleted!`);
+                        return formResponse(res, 200, true, `variant with id ${id} has been deleted!`);
                     }
                     else {
                         console.error(err);
@@ -88,7 +88,7 @@ exports.deleteCategories = (req, res) => {
                 });
             }
             else {
-                return formResponse(res, 404, false, 'categories not found!');
+                return formResponse(res, 404, false, 'variant not found!');
             }
         }
         else {

@@ -5,7 +5,7 @@ exports.getCategories = (cb) => {
     myDb.query('select * from categories', cb);
 };
 
-exports.addCategries = (data, cb) => {
+exports.addCategories = (data, cb) => {
     myDb.query(`insert into categories (name) values ('${data.name}')`, cb);
 };
 
