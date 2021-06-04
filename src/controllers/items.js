@@ -1,26 +1,38 @@
 /* eslint-disable no-unused-vars */
 const itemModel = require('../models/items');
 const {response:formResponse} = require('../helpers/formResponse');
-const timeHelper = require('../helpers/time');
+const {validateInteger} = require('../helpers/validation');
+
 exports.getItems = (req, res) => {
     itemModel.getItems((err, results, _fields) => {
         if(!err) {
-            return formResponse(res, 200, true, 'List of items', results);
+            return formResponse(res, 200, 'List of items', results);
         }
         else {
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 500, 'An error occured');
         }
     });
 };
 
 exports.addItem = (req, res) => {
-    itemModel.addItem(req.body, (err) => {
-        if (!err) {
-            return formResponse(res, 200, true, 'Create item has been successfully!');
-        } else {
-            return formResponse(res, 400, false, 'Bad Request!');
-        }
+    validateInteger(res, req.body.price, 'Price', () => {
+        validateInteger(res, req.body.quantity, 'Quantity', () => {
+            itemModel.addItem(req.body, (err, results, _fields) => {
+                if (!err) {
+                    if(results.affectedRows > 0 ) {
+                        return formResponse(res, 200, 'Create item has been successfully!');
+                    }
+                    else {
+                        return formResponse(res, 400, null, 'An error occured');
+                    }
+                } else {
+                    // console.error(err);
+                    // return formResponse(res, 400, 'An error occured');
+                }
+            });
+        });
     });
+    
 };
 
 exports.updateItem = (req, res) => {
@@ -78,14 +90,14 @@ exports.getDetailItem = (req, res) => {
     itemModel.getItemById(id, (err, results, _fields) => {
         if(!err){
             if(results.length === 1) {
-                return formResponse(res, 200, true, 'Detail Item', results[0]);
+                return formResponse(res, 200, 'Detail Item', results[0]);
             }
             else {
-                return formResponse(res, 404, false, 'Item not Found!');
+                return formResponse(res, 404, null, 'Item not Found!');
             }
         }
         else {
-            return formResponse(res, 500, false, 'An error occured!');
+            return formResponse(res, 500,  null, 'An error occured!');
         }
     });
 };

@@ -2,11 +2,11 @@
 const myDb = require('../helpers/myDb');
 
 exports.getItems = (cb) => {
-    myDb.query('select * from items', cb);
+    myDb.query('select items.id, items.name as product_name, items.images, items.price, categories.name as category_name, items.created_at from items left join categories on categories.id = items.id_category', cb);
 };
 
 exports.addItem = (data, cb) => {
-    myDb.query(`insert into items (name,price,id_category,detail) values ('${data.name}','${data.price}', '${data.id_category}','${data.detail}')`, cb);
+    myDb.query(`insert into items (name,images,price,id_category,quantity,delivery_on,detail) values (?,?,?,?,?,?,?)`, [data.name, data.images, data.price, data.id_category, data.quantity, data.delivery_on, data.detail], cb);
 };
 
 exports.getItemById = (id, cb) => {
