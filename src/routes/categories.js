@@ -6,6 +6,7 @@ categoriesRouter.get('/', categoriesController.getCategories);
 categoriesRouter.post('/', categoriesController.addCategories);
 categoriesRouter.patch('/:id', categoriesController.updateCategories);
 categoriesRouter.delete('/:id', categoriesController.deleteCategories);
+categoriesRouter.get('/:id/items', categoriesController.getItemsByCategories);
 
 
 

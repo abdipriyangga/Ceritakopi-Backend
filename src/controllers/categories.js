@@ -1,15 +1,15 @@
 /* eslint-disable no-unused-vars */
 const categoriesModel = require('../models/categories');
 const {response:formResponse} = require('../helpers/formResponse');
-
+const { getItemsByCategories, getItemsByCategory } = require('../models/items');
 
 exports.getCategories = (req, res) => {
     categoriesModel.getCategories((err, results, _fields) => {
         if(!err) {
-            return formResponse(res, 200, true, 'List of categories', results);
+            return formResponse(res, 200, 'List of categories', results);
         }
         else {
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 500,  'An error occured');
         }
     });
 };
@@ -17,9 +17,9 @@ exports.getCategories = (req, res) => {
 exports.addCategories = (req, res) => {
     categoriesModel.addCategories(req.body, (err) => {
         if (!err) {
-            return formResponse(res, 200, true, 'Create categories has been successfully!');
+            return formResponse(res, 200, null ,'Create categories has been successfully!');
         } else {
-            return formResponse(res, 400, false, 'Bad Request!');
+            return formResponse(res, 400,  'Bad Request!');
         }
     });
 };
@@ -30,14 +30,14 @@ exports.getDetailCategories = (req, res) => {
     categoriesModel.getCategoriesById(id, (err, results, _fields) => {
         if(!err){
             if(results.length === 1) {
-                return formResponse(res, 200, true, 'Detail Categories', results[0]);
+                return formResponse(res, 200,  'Detail Categories', results[0]);
             }
             else {
-                return formResponse(res, 404, false, 'Categories not Found!');
+                return formResponse(res, 404,  'Categories not Found!');
             }
         }
         else {
-            return formResponse(res, 500, false, 'An error occured!');
+            return formResponse(res, 400,  `Error: ${err.sqlMessage}`);
         }
     });
 };
@@ -53,20 +53,20 @@ exports.updateCategories = (req, res) => {
                 const data = req.body;
                 categoriesModel.updateCategories(data,id, (err,results, _fields) => {
                     if(!err) {
-                        return formResponse(res, 200, true, `Categeories with id ${id} updated successfully!`);
+                        return formResponse(res, 200, `Categeories with id ${id} updated successfully!`);
                     }
                     else {
                         console.error(err);
-                        return formResponse(res, 500, false, 'An error occured');
+                        return formResponse(res, 500,  'An error occured');
                     }
                 });
             }
             else {
-                return formResponse(res, 404, false, 'Categories not found!');
+                return formResponse(res, 404,  'Categories not found!');
             }
         }
         else {
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 400, null ,`Error: ${err.sqlMessage}`);
         }
     });
 };
@@ -79,20 +79,32 @@ exports.deleteCategories = (req, res) => {
             if(results.length > 0) {
                 categoriesModel.deleteCategories(id, (err,results, _fields) => {
                     if(!err) {
-                        return formResponse(res, 200, true, `categories with id ${id} has been deleted!`);
+                        return formResponse(res, 200,  `categories with id ${id} has been deleted!`);
                     }
                     else {
                         console.error(err);
-                        return formResponse(res, 500, false, 'An error occured');
+                        return formResponse(res, 500,  'An error occured');
                     }
                 });
             }
             else {
-                return formResponse(res, 404, false, 'categories not found!');
+                return formResponse(res, 404, 'categories not found!');
             }
         }
         else {
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 400, `Error: ${err.sqlMessage}`);
+        }
+    });
+};
+
+exports.getItemsByCategories = (req, res) => {
+    const {id} = req.params;
+    getItemsByCategory(id, (err,results, _fields) => {
+        if(!err) {
+            return formResponse(res, 200, 'List item by category!', results);
+        }
+        else {
+            return formResponse(res, 400, `Error: ${err.sqlMessage}`);
         }
     });
 };

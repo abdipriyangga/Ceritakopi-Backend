@@ -2,6 +2,7 @@
 const itemModel = require('../models/items');
 const {response:formResponse} = require('../helpers/formResponse');
 const {validateInteger} = require('../helpers/validation');
+const { addItemCategory } = require('../models/itemCategories');
 
 exports.getItems = (req, res) => {
     itemModel.getItems((err, results, _fields) => {
@@ -20,19 +21,29 @@ exports.addItem = (req, res) => {
             itemModel.addItem(req.body, (err, results, _fields) => {
                 if (!err) {
                     if(results.affectedRows > 0 ) {
+                        if(typeof req.body.category !== 'object') {
+                            req.body.category = [req.body.category];
+                        }
+                        req.body.category.forEach(category => {
+                            const data = {
+                                id_item: results.insertId,
+                                id_category: category
+                            };
+                            addItemCategory(data, () => {
+                                console.log(`item ${results.insertId} add to category ${category}`);
+                            });
+                        });
                         return formResponse(res, 200, 'Create item has been successfully!');
                     }
                     else {
-                        return formResponse(res, 400, null, 'An error occured');
+                        return formResponse(res, 500, 'An error occured');
                     }
                 } else {
-                    // console.error(err);
-                    // return formResponse(res, 400, 'An error occured');
+                    return formResponse(res, 400, `Error: ${err.sqlMassege}`);
                 }
             });
         });
     });
-    
 };
 
 exports.updateItem = (req, res) => {
@@ -40,25 +51,23 @@ exports.updateItem = (req, res) => {
     itemModel.getItemById(id, (err, results, _fields) => {
         if(!err) {
             if(results.length > 0) {
-                // const {name, images, price, id_category, detail} = req.body;
-                // const updatedData = {id, name, images, price, id_category, detail, updated_at:timeHelper.now()};
                 const data = req.body;
                 itemModel.updateItem(data,id, (err,results, _fields) => {
                     if(!err) {
-                        return formResponse(res, 200, true, `item with id ${id} updated successfully!`);
+                        return formResponse(res, 200, `item with id ${id} updated successfully!`);
                     }
                     else {
                         console.error(err);
-                        return formResponse(res, 500, false, 'An error occured');
+                        return formResponse(res, 500,  'An error occured');
                     }
                 });
             }
             else {
-                return formResponse(res, 404, false, 'Item not found!');
+                return formResponse(res, 404,  'Item not found!');
             }
         }
         else {
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 400, `Error: ${err.sqlMassege}`);
         }
     });
 };
@@ -71,14 +80,13 @@ exports.getItemSearchAndSort = (req, res) => {
     itemModel.getItemSearchAndSort(search, order, value, (err, results, _field) => {
         if(!err) {  
             if(results.length > 0) {
-                return formResponse(res, 200, true, `Items search by ${search}`, results);
+                return formResponse(res, 200, `Items search by ${search}`, results);
             } else {
-                return formResponse(res, 404, false, 'Item not found');
+                return formResponse(res, 404, 'Item not found');
             }
         } 
         else {
-            console.error(err);
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 400, `Error: ${err.sqlMassege}`);
         }
         
     });
@@ -93,11 +101,11 @@ exports.getDetailItem = (req, res) => {
                 return formResponse(res, 200, 'Detail Item', results[0]);
             }
             else {
-                return formResponse(res, 404, null, 'Item not Found!');
+                return formResponse(res, 404, 'Item not Found!');
             }
         }
         else {
-            return formResponse(res, 500,  null, 'An error occured!');
+            return formResponse(res, 400, `Error: ${err.sqlMassege}`);
         }
     });
 };
@@ -110,20 +118,19 @@ exports.deleteItem = (req, res) => {
             if(results.length > 0) {
                 itemModel.deleteItem(id, (err,results, _fields) => {
                     if(!err) {
-                        return formResponse(res, 200, true, `item with id ${id} has been deleted!`);
+                        return formResponse(res, 200, `item with id ${id} has been deleted!`);
                     }
                     else {
-                        console.error(err);
-                        return formResponse(res, 500, false, 'An error occured');
+                        return formResponse(res, 500, 'An error occured');
                     }
                 });
             }
             else {
-                return formResponse(res, 404, false, 'Item not found!');
+                return formResponse(res, 404, 'Item not found!');
             }
         }
         else {
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 400, `Error: ${err.sqlMassege}`);
         }
     });
 };
