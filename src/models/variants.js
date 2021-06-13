@@ -2,11 +2,11 @@
 const myDb = require('../helpers/myDb');
 
 exports.getVariants = (cb) => {
-    myDb.query('select * from variants', cb);
+    myDb.query('select name, code from variants',cb);
 };
 
 exports.addVariants = (data, cb) => {
-    myDb.query(`insert into variants (name) values ('${data.name}')`, cb);
+    myDb.query(`insert into variants (name, code) values (?, ?)`, [data.name, data.code] ,cb);
 };
 
 exports.getVariantsById = (id, cb) => {
@@ -14,7 +14,6 @@ exports.getVariantsById = (id, cb) => {
 };
 
 exports.updateVariants = (data,id, cb) => {
-    // myDb.query(`update items set name='${data.name}', images=${data.images}, price=${data.price}, id_category=${data.id_category}, detail='${data.detail}', updated_at='${data.updated_at}' where id=${data.id}`, cb);
     myDb.query(`update variants set ? where id=?`, [data,id], cb);
 };
 

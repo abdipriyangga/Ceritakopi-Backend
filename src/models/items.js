@@ -10,7 +10,10 @@ exports.addItem = (data, cb) => {
 };
 
 exports.getItemById = (id, cb) => {
-    myDb.query(`select * from items where id = ${id}`, cb);
+    myDb.query(`SELECT items.id, items.images, items.name, items.detail, items.quantity, items.delivery_on, items.price as base_price, item_variants.additional_price, 
+(items.price + item_variants.additional_price) as end_price,variants.name as variant_name, variants.code, items.created_at, items.updated_at from items 
+INNER JOIN item_variants on item_variants.id_item = items.id
+INNER Join variants on item_variants.id_variant = variants.id where items.id = ?`, [id], cb);
 };
 
 exports.updateItem = (data,id, cb) => {

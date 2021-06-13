@@ -97,8 +97,31 @@ exports.getDetailItem = (req, res) => {
     const id = parseInt(stringId);
     itemModel.getItemById(id, (err, results, _fields) => {
         if(!err){
-            if(results.length === 1) {
-                return formResponse(res, 200, 'Detail Item', results[0]);
+            if(results.length > 0) {
+                const data = {
+                    id: '',
+                    images: '',
+                    name: '',
+                    detail: '',
+                    delivery_on: '',
+                    quantity: '',
+                    variants: [],
+                    created_at : '',
+                    updated_at: '',
+                    ...results[0]
+                };
+                const hiddenColoumn = ['base_price', 'additional_price', 'end_price', 'variant_name', 'code'];
+                hiddenColoumn.forEach(column => {
+                    delete data[column];
+                });
+                results.forEach(item => {
+                    data.variants.push({
+                        name: item.variant_name,
+                        code: item.code,
+                        price: item.end_price
+                    });
+                });
+                return formResponse(res, 200, 'Detail Item', data);
             }
             else {
                 return formResponse(res, 404, 'Item not Found!');

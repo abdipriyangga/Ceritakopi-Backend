@@ -1,15 +1,15 @@
 /* eslint-disable no-unused-vars */
-const variantsModel = require('../models/categories');
+const variantsModel = require('../models/variants');
 const {response:formResponse} = require('../helpers/formResponse');
 
 
 exports.getVariants = (req, res) => {
-    variantsModel.getvariants((err, results, _fields) => {
+    variantsModel.getVariants((err, results, _fields) => {
         if(!err) {
-            return formResponse(res, 200, true, 'List of variants', results);
+            return formResponse(res, 200, 'List of variants', results);
         }
         else {
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 500, 'An error occured');
         }
     });
 };
@@ -17,9 +17,9 @@ exports.getVariants = (req, res) => {
 exports.addVariants = (req, res) => {
     variantsModel.addVariants(req.body, (err) => {
         if (!err) {
-            return formResponse(res, 200, true, 'Create variants has been successfully!');
+            return formResponse(res, 200, 'Create variants has been successfully!');
         } else {
-            return formResponse(res, 400, false, 'Bad Request!');
+            return formResponse(res, 400, 'Bad Request!');
         }
     });
 };
@@ -30,14 +30,14 @@ exports.getDetailVariants= (req, res) => {
     variantsModel.getVariantsById(id, (err, results, _fields) => {
         if(!err){
             if(results.length === 1) {
-                return formResponse(res, 200, true, 'Detail variants', results[0]);
+                return formResponse(res, 200, 'Detail variants', results[0]);
             }
             else {
-                return formResponse(res, 404, false, 'Variant not Found!');
+                return formResponse(res, 404, 'Variant not Found!');
             }
         }
         else {
-            return formResponse(res, 500, false, 'An error occured!');
+            return formResponse(res, 500, 'An error occured!');
         }
     });
 };
@@ -53,20 +53,20 @@ exports.updateVariants = (req, res) => {
                 const data = req.body;
                 variantsModel.updateVariants(data,id, (err,results, _fields) => {
                     if(!err) {
-                        return formResponse(res, 200, true, `Variant with id ${id} updated successfully!`);
+                        return formResponse(res, 200, `Variant with id ${id} updated successfully!`);
                     }
                     else {
                         console.error(err);
-                        return formResponse(res, 500, false, 'An error occured');
+                        return formResponse(res, 500, 'An error occured');
                     }
                 });
             }
             else {
-                return formResponse(res, 404, false, 'Variants not found!');
+                return formResponse(res, 404, 'Variants not found!');
             }
         }
         else {
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 500, 'An error occured');
         }
     });
 };
@@ -79,20 +79,20 @@ exports.deleteVariants = (req, res) => {
             if(results.length > 0) {
                 variantsModel.deleteVariants(id, (err,results, _fields) => {
                     if(!err) {
-                        return formResponse(res, 200, true, `variant with id ${id} has been deleted!`);
+                        return formResponse(res, 200, `variant with id ${id} has been deleted!`);
                     }
                     else {
                         console.error(err);
-                        return formResponse(res, 500, false, 'An error occured');
+                        return formResponse(res, 500, 'An error occured');
                     }
                 });
             }
             else {
-                return formResponse(res, 404, false, 'variant not found!');
+                return formResponse(res, 404, 'variant not found!');
             }
         }
         else {
-            return formResponse(res, 500, false, 'An error occured');
+            return formResponse(res, 500, 'An error occured');
         }
     });
 };
