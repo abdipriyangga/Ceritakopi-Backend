@@ -25,10 +25,16 @@ exports.deleteItem = (id, cb) => {
 };
 
 // Search and Sort
-exports.getItemSearchAndSort = (search, order, value, cb) => {
-    myDb.query(`SELECT items.id, items.name, items.images, items.price as price, items.id_category, items.detail, categories.name as category_name, items.created_at as newest FROM items LEFT JOIN categories ON categories.id = items.id_category WHERE items.name LIKE '%${search}%' ORDER BY ${order} ${value}`, [search, order, value], cb);
+exports.getItemSearchAndSort = (cond, cb) => {
+    myDb.query(`SELECT items.id, items.name, items.images, items.price as price, items.detail, categories.name as category_name, items.created_at as newest FROM items LEFT JOIN categories ON categories.id = items.id WHERE items.name LIKE '%${cond.search}%' ORDER BY ${cond.order} ${cond.value} LIMIT ${cond.limit} OFFSET ${cond.offset}`, [cond.search, cond.limit, cond.offset, cond.order, cond.value], cb);
 };
 
 exports.getItemsByCategory = (id, cb) => {
     myDb.query(`SELECT items.name, items.images, items.price as price FROM items LEFT JOIN item_category ON item_category.id_item = items.id where item_category.id_category = ?`, [id], cb);
+};
+
+exports.getItembyIdTrx = (id, cb) => {
+    myDb.query(`
+    SELECT id, name, price from items WHERE id IN (?)
+    `, [id], cb);
 };

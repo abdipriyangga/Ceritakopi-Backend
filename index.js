@@ -10,6 +10,7 @@ const mainRouter = require('./src/routes/index');
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: false}));
 
+
 app.listen(port, () => {
     console.log(`Server running on port : ${port}`);
 });

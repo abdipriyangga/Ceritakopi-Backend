@@ -3,6 +3,10 @@ const itemModel = require('../models/items');
 const {response:formResponse} = require('../helpers/formResponse');
 const {validateInteger} = require('../helpers/validation');
 const { addItemCategory } = require('../models/itemCategories');
+const itemImage = require('../helpers/upload').single('images');
+const path = require('path');
+const { addItemVariant } = require('../models/itemVariants');
+const { APP_URL, APP_UPLOAD_ROUTE } = process.env;
 
 exports.getItems = (req, res) => {
     itemModel.getItems((err, results, _fields) => {
@@ -16,31 +20,51 @@ exports.getItems = (req, res) => {
 };
 
 exports.addItem = (req, res) => {
-    validateInteger(res, req.body.price, 'Price', () => {
-        validateInteger(res, req.body.quantity, 'Quantity', () => {
-            itemModel.addItem(req.body, (err, results, _fields) => {
-                if (!err) {
-                    if(results.affectedRows > 0 ) {
-                        if(typeof req.body.category !== 'object') {
-                            req.body.category = [req.body.category];
+    itemImage(req, res, err => {
+        validateInteger(res, req.body.price, 'Price', () => {
+            validateInteger(res, req.body.quantity, 'Quantity', () => {
+                req.body.images = path.join(process.env.APP_UPLOAD_ROUTE, req.file.filename);
+                itemModel.addItem(req.body, (err, results, _fields) => {
+                    if (!err) {
+                        if(results.affectedRows > 0 ) {
+                            if(req.body.category) {
+                                if(typeof req.body.category !== 'object') {
+                                    req.body.category = [req.body.category];
+                                }
+                                if(typeof req.body.variant !== 'object') {
+                                    req.body.variant = [req.body.variant];
+                                }
+                                if(typeof req.body.priceVariant !== 'object') {
+                                    req.body.priceVariant = [req.body.priceVariant];
+                                }
+                                req.body.category.forEach(category => {
+                                    const data = {
+                                        id_item: results.insertId,
+                                        id_category: category
+                                    };
+                                    addItemCategory(data, () => {
+                                        console.log(`item ${results.insertId} add to category ${category}`);
+                                    });
+                                });
+                                req.body.variant.forEach((idVariant, idx) => {
+                                    const data = {
+                                        id_item: results.insertId,
+                                        id_variant: idVariant,
+                                        additional_price: req.body.priceVariant[idx]
+                                    };
+                                    addItemVariant(data, () => {
+                                        console.log(`${idVariant}`);
+                                    });
+                                });
+                            }
+                            return formResponse(res, 200, 'Create item has been successfully!');
+                        } else {
+                            return formResponse(res, 500, 'An error occured');
                         }
-                        req.body.category.forEach(category => {
-                            const data = {
-                                id_item: results.insertId,
-                                id_category: category
-                            };
-                            addItemCategory(data, () => {
-                                console.log(`item ${results.insertId} add to category ${category}`);
-                            });
-                        });
-                        return formResponse(res, 200, 'Create item has been successfully!');
+                    } else {
+                        return formResponse(res, 400, `Error: ${err.sqlMassege}`);
                     }
-                    else {
-                        return formResponse(res, 500, 'An error occured');
-                    }
-                } else {
-                    return formResponse(res, 400, `Error: ${err.sqlMassege}`);
-                }
+                });
             });
         });
     });
@@ -74,19 +98,26 @@ exports.updateItem = (req, res) => {
 
 // Search and Sort
 exports.getItemSearchAndSort = (req, res) => {
-    const order = req.query.sortBy || 'newest';
-    const value = req.query.value || 'asc';
-    const search = req.query.q || '';
-    itemModel.getItemSearchAndSort(search, order, value, (err, results, _field) => {
+    const cond = req.query;
+    cond.limit = cond.limit || 5;
+    cond.offset = cond.offset || 0;
+    cond.order = cond.sortBy || 'newest';
+    cond.value = cond.value || 'asc';
+    cond.search = cond.q || '';
+    cond.page = cond.page || 1;
+    cond.offset = (cond.page - 1) * cond.limit;
+
+    itemModel.getItemSearchAndSort(cond ,(err, results, _field) => {
         if(!err) {  
-            if(results.length > 0) {
-                return formResponse(res, 200, `Items search by ${search}`, results);
+            if(!err) {
+                return formResponse(res, 200, 'List of items', results);
             } else {
                 return formResponse(res, 404, 'Item not found');
             }
         } 
         else {
-            return formResponse(res, 400, `Error: ${err.sqlMassege}`);
+            console.log(err);
+            return formResponse(res, 400, `Error: ${err}`);
         }
         
     });
@@ -98,6 +129,10 @@ exports.getDetailItem = (req, res) => {
     itemModel.getItemById(id, (err, results, _fields) => {
         if(!err){
             if(results.length > 0) {
+                const item = results[0];
+                if(item.images !== null && !item.images.startsWith('http')) {
+                    item.images = `${APP_URL}${item.images}`;
+                }
                 const data = {
                     id: '',
                     images: '',
