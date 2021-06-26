@@ -168,6 +168,19 @@ exports.getDetailItem = (req, res) => {
     });
 };
 
+exports.getItemByCategory = (req, res) => {
+    const {id:stringId} = req.params;
+    const id = parseInt(stringId);
+    itemModel.getItemsByCategory(id, (err, results, _fields) => {
+        if(!err) {
+            return formResponse(res, 200, 'Item with category ', results);
+        }
+        else {
+            return formResponse(res, 500, 'An error occured');
+        }
+    });
+};
+
 exports.deleteItem = (req, res) => {
     const {id:stringId} = req.params;
     const id = parseInt(stringId);

@@ -4,6 +4,7 @@ const itemsController = require('../controllers/items');
 const auth = require('../helpers/middlewares/checkToken');
 
 itemsRouter.get('/search', itemsController.getItemSearchAndSort);
+itemsRouter.get('/category/:id/items',itemsController.getItemByCategory);
 itemsRouter.get('/', itemsController.getItems);
 itemsRouter.post('/', auth, itemsController.addItem);
 itemsRouter.get('/:id',itemsController.getDetailItem);
