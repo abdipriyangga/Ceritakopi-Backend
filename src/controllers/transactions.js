@@ -1,7 +1,7 @@
 const {response:formResponse} = require('../helpers/formResponse');
 const {codeTransaction} = require('../helpers/transactions');
 const {getItembyIdTrx} = require('../models/items');
-const {createTransaction, createProductTransaction, getTransactionByIdOn, getTransactionDetail } = require('../models/transactions');
+const {createTransaction, createProductTransaction, getTransactionById, getTransactionDetail } = require('../models/transactions');
 const {getUserById} = require('../models/auth');
 
 exports.createTransaction = (req, res) => {
@@ -40,16 +40,14 @@ exports.createTransaction = (req, res) => {
                                     id_item: item.id,
                                     id_transaction: results.insertId
                                 };
+                                console.log(dataFinal);
                                 createProductTransaction(dataFinal, (err) => {
-                                    if (!err) {
-                                        return formResponse(res, 200, 'transaction success');
-                                    } else {
-                                        return formResponse(res, 400, 'transaction failed');
-                                    }
+                                    if(err) throw err;
                                 });
                             });
+                            return formResponse(res, 200, 'transaction success');
                         } else {
-                            console.error(err);
+                            console.log(err);
                             return formResponse(res, 400, 'transaction failed');
                         }
                     });
@@ -63,16 +61,17 @@ exports.createTransaction = (req, res) => {
     });
 };
 
-exports.getTransactionByIdOn = (req, res) => {
+exports.getTransactionById = (req, res) => {
     const { id } = req.authUser;
-    getTransactionByIdOn(id, (err, results) => {
+    getTransactionById(id, (err, results) => {
         if (results < 1) {
-            formResponse(res, 404, 'History not found');
+            return formResponse(res, 404, 'History not found');
         }
         if (!err) {
-            formResponse(res,  200, 'History Transaction', results);
+            return formResponse(res,  200, 'History Transaction', results);
         } else {
-            formResponse(res, 404, 'History not found');
+            console.log(err);
+            return formResponse(res, 404, 'History not found');
         }
     });
 };

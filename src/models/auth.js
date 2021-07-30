@@ -16,3 +16,7 @@ exports.getUserById = (id, cb) => {
     SELECT id, name, images, email, address, phone_number, role FROM ${table} WHERE id = ?
     `, [id], cb);
 };
+
+exports.checkEmailForgot = (email, cb) => {
+    myDb.query(`select email from ${table} where email =  ?`, email, cb);
+};

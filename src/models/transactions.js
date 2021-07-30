@@ -14,10 +14,10 @@ exports.createProductTransaction = (data, cb) => {
     `, [data.name, data.price, data.amount, data.id_item, data.id_transaction], cb);
 };
 
-exports.getTransactionByIdOn = (id, cb) => {
+exports.getTransactionById = (id, cb) => {
     myDb.query(`
-    SELECT id, code, total, tax, shipping_cost, shipping_address, payment_method FROM ${table}
-    WHERE id_user = ?`, [id], cb);
+    SELECT id, code_transaction, total, tax, shipping_cost, shipping_address, payment_method FROM ${table} where id_user = ?
+    `, [id], cb);
 };
 
 exports.getTransactionDetail = (id, cb) => {

@@ -5,6 +5,7 @@ const categoriesRouter = require('./categories');
 const variantsRouter = require('./variants');
 const authRouter = require('./auth');
 const transactionsRouter = require('./transactions');
+const userRouter = require('./users');
 const {APP_UPLOAD_ROUTE, APP_UPLOAD_PATH} = process.env;
 const welcomeRouter = require('./welcome');
 // endpoint handler
@@ -13,6 +14,7 @@ mainRouter.use('/items', itemsRouter);
 mainRouter.use('/categories', categoriesRouter);
 mainRouter.use('/variants', variantsRouter);
 mainRouter.use('/transactions', transactionsRouter);
+mainRouter.use('/profile', userRouter);
 mainRouter.use(APP_UPLOAD_ROUTE, express.static(APP_UPLOAD_PATH));
 mainRouter.use('/', welcomeRouter);
 
