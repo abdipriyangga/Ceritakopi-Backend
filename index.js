@@ -4,14 +4,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
+const port = process.env.PORT || '8090';
 const mainRouter = require('./src/routes/index');
 
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: false}));
 
 
-app.listen(process.env.PORT, () => {
-    console.log(`Server running on port : ${process.env.PORT}`);
+app.listen(port, () => {
+    console.log(`Server running on port : ${port}`);
 });
 
 app.use('/', mainRouter);
