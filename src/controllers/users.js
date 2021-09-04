@@ -17,3 +17,29 @@ exports.getUserProfile = (req, res) => {
         }
     });
 };
+
+exports.updateProfile = (req, res) => {
+    const {id} = req.params;
+    userModel.getUserById(id, (err, results, _fields) => {
+        if(!err) {
+            if(results.length > 0) {
+                const data = req.body;
+                userModel.updateProfile(data,id, (err,results, _fields) => {
+                    if(!err) {
+                        return formResponse(res, 200, `Profile with id ${id} updated successfully!`);
+                    }
+                    else {
+                        console.error(err);
+                        return formResponse(res, 500,  'An error occured');
+                    }
+                });
+            }
+            else {
+                return formResponse(res, 404,  'User not found!');
+            }
+        }
+        else {
+            return formResponse(res, 400, `Error: ${err.sqlMassege}`);
+        }
+    });
+};

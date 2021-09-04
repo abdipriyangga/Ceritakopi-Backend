@@ -37,3 +37,6 @@ exports.getUserById = (id, cb) => {
     SELECT id, role, name, images, email, address, phone_number FROM users WHERE id = ?
     `, [id], cb);
 };
+exports.updateProfile = (data,id, cb) => {
+    myDb.query(`update users set ? where id=?`, [data,id], cb);
+};
