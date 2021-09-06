@@ -1,25 +1,25 @@
 /* eslint-disable quotes */
 const myDb = require('../helpers/myDb');
-
+const { promisify } = require('util');
 const table = 'categories';
+const execPromise = promisify(myDb.query).bind(myDb);
 
-exports.getCategories = (cb) => {
-    myDb.query(`select name from ${table}`, cb);
+exports.getCategories = () => {
+    return execPromise(`select name from ${table}`, )
 };
 
-exports.addCategories = (data, cb) => {
-    myDb.query(`insert into ${table} (name) values (?)`, [data.name], cb);
+exports.addCategories = (data) => {
+    return execPromise(`insert into ${table} (name) values (?)`, [data.name]);
 };
 
-exports.getCategoriesById = (id, cb) => {
-    myDb.query(`select * from ${table} where id = ${id}`, cb);
+exports.getCategoriesById = (id) => {
+    return execPromise(`select * from ${table} where id = ${id}`);
 };
 
-exports.updateCategories = (data,id, cb) => {
-    // myDb.query(`update items set name='${data.name}', images=${data.images}, price=${data.price}, id_category=${data.id_category}, detail='${data.detail}', updated_at='${data.updated_at}' where id=${data.id}`, cb);
-    myDb.query(`update ${table} set ? where id=?`, [data,id], cb);
+exports.updateCategories = (data,id) => {
+    return execPromise(`update ${table} set ? where id=?`, [data, id]);
 };
 
-exports.deleteCategories = (id, cb) => {
-    myDb.query(`DELETE FROM ${table} WHERE id=?`, [id], cb);
+exports.deleteCategories = (id) => {
+    return execPromise(`DELETE FROM ${table} WHERE id = ?`, [id]);
 };

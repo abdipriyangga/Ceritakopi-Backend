@@ -3,14 +3,13 @@ const myDb = require('../helpers/myDb');
 const {promisify} = require('util');
 const table = 'users';
 const execPromise = promisify(myDb.query).bind(myDb);
-const role = 'general';
 
 exports.createUser = (data) => {
-    return execPromise(`insert into ${table} (email, password, phone_number, role) values (?, ?, ?, ${role})`, [data.email, data.password, data.phone_number, data.role]);
+    return execPromise(`insert into ${table} (email, password, phone_number, role) values (?, ?, ?, 'customer')`, [data.email, data.password, data.phone_number, data.role]);
 };
 
 exports.getUserByEmail = (email) => {
-    return execPromise(`Select id, email, password from ${table} where email = ?`, email)
+    return execPromise(`Select id, email, password, role from ${table} where email = ?`, email)
 };
 
 exports.getUserByPhoneNumber = (phone_number) => {

@@ -16,13 +16,8 @@ exports.getUserByEmail = (email, cb) => {
     SELECT users.id ,users.email, users.password FROM users WHERE users.email = ?
     `, [email], cb);
 };
-exports.getUserRole = (id, cb) => {
-    myDb.query(`
-    SELECT role FROM users WHERE id = ?
-    `, [id], cb);
-};
 
-exports.getUserRoleAsync = (id) => {
+exports.getUserRole = (id) => {
     return execPromise(`
     SELECT role FROM users WHERE id = ?
     `, [id]);

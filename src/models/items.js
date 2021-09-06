@@ -1,6 +1,7 @@
 /* eslint-disable quotes */
 const myDb = require('../helpers/myDb');
-
+const { promisify } = require('util');
+const execPromise = promisify(myDb.query).bind(myDb);
 exports.getItems = (cb) => {
     myDb.query('select items.id, items.name as product_name, items.images, items.price, items.created_at from items', cb);
 };
@@ -32,7 +33,9 @@ exports.getItemSearchAndSort = (cond, cb) => {
 exports.getItemsByCategory = (id, cb) => {
     myDb.query(`SELECT items.name, items.images, items.price as price FROM items LEFT JOIN item_category ON item_category.id_item = items.id where item_category.id_category = ?`, [id], cb);
 };
-
+exports.getItemsByCategoryAsync = (id) => {
+    return execPromise(`SELECT items.name, items.images, items.price as price FROM items LEFT JOIN item_category ON item_category.id_item = items.id where item_category.id_category = ?`, [id])
+};
 exports.getItembyIdTrx = (id, cb) => {
     myDb.query(`
     SELECT id, name, price from items WHERE id IN (?)

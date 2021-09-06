@@ -10,7 +10,11 @@ const auth = (req, res, next) => {
                 const token = req.headers.authorization.slice(7);
                 const user = jwt.verify(token, APP_SECRET_KEY);
                 req.authUser = user;
-                next();
+                if(req.authUser.role === 'customer') {
+                    next();
+                } else {
+                    return formResponse(res, 400, 'Sorry you are not admin!');
+                }
             } catch (err) {
                 return formResponse(res, 401, 'Session expired, please login!');
             }

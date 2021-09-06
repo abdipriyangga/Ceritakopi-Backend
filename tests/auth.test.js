@@ -31,12 +31,12 @@ describe('Auth: Login testing', ()=>{
     })
   })
 
-  it('Wrong email or password!', (done) => {
+  it('Check role admin: Wrong email or password!', (done) => {
 
     let req = {
       body: {
-        email: 'dummy2@gmail.com',
-        password: '1234564'
+        email: 'admin@gmail.com',
+        password: '1234567'
       }
     }
 
@@ -59,11 +59,67 @@ describe('Auth: Login testing', ()=>{
     })
   })
 
-  it('Login Success!', (done) => {
+  it('Check role admin: Login Admin success!', (done) => {
 
     let req = {
       body: {
-        email: 'dummy2@gmail.com',
+        email: 'admin@gmail.com',
+        password: '123456'
+      }
+    }
+
+    const mockingResponse = () => {
+      const res = {}
+      res.status = sinon.stub().returns(res)
+      res.json = sinon.stub().returns(res)
+      return res
+    }
+
+    const res = mockingResponse()
+
+    login(req, res).then((data) => {
+      expect(data.status.firstCall.args[0]).equal(200)
+      expect(data.json.firstCall.args[0].success).to.be.true
+      expect(data.json.firstCall.args[0].message).equal('Login Admin Success!')
+      done()
+    }).catch((err) => {
+      done(err);
+    })
+  })
+
+  it('Check role customer: Wrong email or password!', (done) => {
+
+    let req = {
+      body: {
+        email: 'dummy7@gmail.com',
+        password: '1234568'
+      }
+    }
+
+    const mockingResponse = () => {
+      const res = {}
+      res.status = sinon.stub().returns(res)
+      res.json = sinon.stub().returns(res)
+      return res
+    }
+
+    const res = mockingResponse()
+
+    login(req, res).then((data) => {
+      expect(data.status.firstCall.args[0]).equal(401)
+      expect(data.json.firstCall.args[0].success).to.be.false
+      expect(data.json.firstCall.args[0].message).equal('Wrong email or password!')
+      done()
+    }).catch((err) => {
+      done(err);
+    })
+  })
+
+  it('Check role customer: Login success!', (done) => {
+
+    let req = {
+      body: {
+        email: 'dummy7@gmail.com',
         password: '123456'
       }
     }
@@ -83,7 +139,7 @@ describe('Auth: Login testing', ()=>{
       expect(data.json.firstCall.args[0].message).equal('Login Success!')
       done()
     }).catch((err) => {
-      console.log(err);
+      done(err);
     })
   })
 })
