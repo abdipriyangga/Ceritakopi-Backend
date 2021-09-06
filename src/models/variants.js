@@ -1,22 +1,25 @@
 /* eslint-disable quotes */
 const myDb = require('../helpers/myDb');
+const { promisify } = require('util');
+const execPromise = promisify(myDb.query).bind(myDb);
 
 exports.getVariants = (cb) => {
-    myDb.query('select name, code from variants',cb);
+    return execPromise('select name, code from variants', cb);
 };
 
-exports.addVariants = (data, cb) => {
-    myDb.query(`insert into variants (name, code) values (?, ?)`, [data.name, data.code] ,cb);
+exports.addVariants = (data) => {
+    return execPromise(`insert into variants (name, code) values (?, ?)`, [data.name, data.code]);
+
 };
 
-exports.getVariantsById = (id, cb) => {
-    myDb.query(`select * from variants where id = ${id}`, cb);
+exports.getVariantsById = (id) => {
+    return execPromise(`select * from variants where id = ${id}`);
 };
 
-exports.updateVariants = (data,id, cb) => {
-    myDb.query(`update variants set ? where id=?`, [data,id], cb);
+exports.updateVariants = (data,id) => {
+    return execPromise(`update variants set ? where id=?`, [data, id]);
 };
 
-exports.deleteVariants = (id, cb) => {
-    myDb.query(`DELETE FROM variants WHERE id=?`, [id], cb);
+exports.deleteVariants = (id) => {
+    return execPromise(`DELETE FROM variants WHERE id=?`, [id]);
 };

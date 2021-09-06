@@ -3,96 +3,83 @@ const variantsModel = require('../models/variants');
 const {response:formResponse} = require('../helpers/formResponse');
 
 
-exports.getVariants = (req, res) => {
-    variantsModel.getVariants((err, results, _fields) => {
-        if(!err) {
-            return formResponse(res, 200, 'List of variants', results);
-        }
-        else {
-            return formResponse(res, 500, 'An error occured');
-        }
-    });
+exports.getVariants = async (req, res) => {
+    const results = await variantsModel.getVariants();
+    try {
+        return formResponse(res, 200, 'List of variants', results);
+    } catch (error) {
+        return formResponse(res, 500, 'An error occured');
+    }
+    
 };
 
-exports.addVariants = (req, res) => {
-    variantsModel.addVariants(req.body, (err) => {
-        if (!err) {
-            return formResponse(res, 200, 'Create variants has been successfully!');
+exports.addVariants = async (req, res) => {
+    const {name, code} = req.body;
+    try {
+        if (name === '' || code === '') {
+            return formResponse(res, 400, 'You must input name and code variants!')
         } else {
-            return formResponse(res, 400, 'Bad Request!');
+            const results = await variantsModel.addVariants(req.body);
+            return formResponse(res, 200, 'Create variants has been successfully!', results);
         }
-    });
+    } catch (error) {
+        // console.log(error);
+        return formResponse(res, 500, 'An error occured!', error);
+    }
+    
 };
 
-exports.getDetailVariants= (req, res) => {
+exports.getDetailVariants = async (req, res) => {
     const {id:stringId} = req.params;
     const id = parseInt(stringId);
-    variantsModel.getVariantsById(id, (err, results, _fields) => {
-        if(!err){
-            if(results.length === 1) {
-                return formResponse(res, 200, 'Detail variants', results[0]);
-            }
-            else {
-                return formResponse(res, 404, 'Variant not Found!');
-            }
+    try {
+        const results = await variantsModel.getVariantsById(id);
+        if (results.length === 1) {
+            return formResponse(res, 200, 'Detail variants', results[0]);
         }
         else {
-            return formResponse(res, 500, 'An error occured!');
+            return formResponse(res, 404, 'Variant not Found!');
         }
-    });
+    } catch (error) {
+        console.log(error);
+        return formResponse(res, 500, 'An error occured!', error)
+    }
 };
 
 
-exports.updateVariants = (req, res) => {
+exports.updateVariants = async (req, res) => {
     const {id} = req.params;
-    variantsModel.getVariantsById(id, (err, results, _fields) => {
-        if(!err) {
-            if(results.length > 0) {
-                // const {name, images, price, id_category, detail} = req.body;
-                // const updatedData = {id, name, images, price, id_category, detail, updated_at:timeHelper.now()};
-                const data = req.body;
-                variantsModel.updateVariants(data,id, (err,results, _fields) => {
-                    if(!err) {
-                        return formResponse(res, 200, `Variant with id ${id} updated successfully!`);
-                    }
-                    else {
-                        console.error(err);
-                        return formResponse(res, 500, 'An error occured');
-                    }
-                });
-            }
-            else {
-                return formResponse(res, 404, 'Variants not found!');
-            }
+    const getVariantId = await variantsModel.getVariantsById(id);
+    try {
+        if (getVariantId.length > 0) {
+            const data = req.body;
+            const results = await variantsModel.updateVariants(data, id);
+            return formResponse(res, 200, `Variant updated successfully!`, results[0]);
         }
         else {
-            return formResponse(res, 500, 'An error occured');
+            return formResponse(res, 404, 'Variants not found!');
         }
-    });
+    } catch (error) {
+        return formResponse(res, 500, 'An error occured!', error);
+    }
+    
 };
 
-exports.deleteVariants = (req, res) => {
+exports.deleteVariants = async (req, res) => {
     const {id:stringId} = req.params;
     const id = parseInt(stringId);
-    variantsModel.getVariantsById(id, (err, results, _fields) => {
-        if(!err) {
-            if(results.length > 0) {
-                variantsModel.deleteVariants(id, (err,results, _fields) => {
-                    if(!err) {
-                        return formResponse(res, 200, `variant with id ${id} has been deleted!`);
-                    }
-                    else {
-                        console.error(err);
-                        return formResponse(res, 500, 'An error occured');
-                    }
-                });
-            }
-            else {
-                return formResponse(res, 404, 'variant not found!');
-            }
+    
+    const getVariantId = await variantsModel.getVariantsById(id);
+    try {
+        if (getVariantId.length > 0) {
+            const results = await variantsModel.deleteVariants(id);
+            return formResponse(res, 200, `variant has been deleted!`, results);
         }
         else {
-            return formResponse(res, 500, 'An error occured');
+            return formResponse(res, 404, 'variant not found!');
         }
-    });
+    } catch (error) {
+        console.log(error);
+        return formResponse(res, 500, 'An error occured', error);
+    }
 };
