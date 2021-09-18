@@ -1,22 +1,51 @@
 /* eslint-disable no-unused-vars */
 const itemModel = require('../models/items');
-const {response:formResponse} = require('../helpers/formResponse');
-const {validateInteger} = require('../helpers/validation');
+const { response: formResponse } = require('../helpers/formResponse');
+const { validateInteger } = require('../helpers/validation');
 const { addItemCategory } = require('../models/itemCategories');
 const itemImage = require('../helpers/upload').single('images');
 const path = require('path');
 const { addItemVariant } = require('../models/itemVariants');
 const { APP_URL, APP_UPLOAD_ROUTE } = process.env;
 
-exports.getItems = (req, res) => {
-    itemModel.getItems((err, results, _fields) => {
-        if(!err) {
-            return formResponse(res, 200, 'List of items', results);
-        }
-        else {
-            return formResponse(res, 500, 'An error occured');
-        }
-    });
+exports.getItems = async (req, res) => {
+    const cond = req.query;
+    cond.limit = cond.limit || 7;
+    cond.offset = cond.offset || 0;
+    cond.page = cond.page || 1;
+    cond.offset = (cond.page - 1) * cond.limit;
+    const results = await itemModel.getItems(cond);
+    const countResult = await itemModel.getProductCount();
+    const pageInfo = {};
+    try {
+
+        // console.log('total items: ', countResult[0].count_item);
+
+        const totalItems = countResult[0].count_item;
+        // console.log(totalItems);
+        const lastPage = Math.ceil(totalItems / cond.limit);
+        pageInfo.totalItems = totalItems
+        pageInfo.currentPage = cond.page
+        pageInfo.lastPage = lastPage
+        pageInfo.limitData = cond.limit
+        pageInfo.nextPage =
+            cond.page < lastPage
+                ? `${APP_URL}/items?page=${cond.page + 1}`
+                : null
+        pageInfo.prevPage =
+            cond.page > 1
+                ? `${APP_URL}/items?page=${cond.page - 1}`
+                : null
+
+        // const dataResults = [
+        //     ...results,
+        //     pageInfo,
+        // ]
+        // console.log(dataResults);
+        return formResponse(res, 200, 'List of items', results, pageInfo);
+    } catch (error) {
+        return formResponse(res, 500, 'An error occured!', error);
+    }
 };
 
 exports.addItem = (req, res) => {
@@ -26,15 +55,15 @@ exports.addItem = (req, res) => {
                 req.body.images = path.join(process.env.APP_UPLOAD_ROUTE, req.file.filename);
                 itemModel.addItem(req.body, (err, results, _fields) => {
                     if (!err) {
-                        if(results.affectedRows > 0 ) {
-                            if(req.body.category) {
-                                if(typeof req.body.category !== 'object') {
+                        if (results.affectedRows > 0) {
+                            if (req.body.category) {
+                                if (typeof req.body.category !== 'object') {
                                     req.body.category = [req.body.category];
                                 }
-                                if(typeof req.body.variant !== 'object') {
+                                if (typeof req.body.variant !== 'object') {
                                     req.body.variant = [req.body.variant];
                                 }
-                                if(typeof req.body.priceVariant !== 'object') {
+                                if (typeof req.body.priceVariant !== 'object') {
                                     req.body.priceVariant = [req.body.priceVariant];
                                 }
                                 req.body.category.forEach(category => {
@@ -71,23 +100,23 @@ exports.addItem = (req, res) => {
 };
 
 exports.updateItem = (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     itemModel.getItemById(id, (err, results, _fields) => {
-        if(!err) {
-            if(results.length > 0) {
+        if (!err) {
+            if (results.length > 0) {
                 const data = req.body;
-                itemModel.updateItem(data,id, (err,results, _fields) => {
-                    if(!err) {
+                itemModel.updateItem(data, id, (err, results, _fields) => {
+                    if (!err) {
                         return formResponse(res, 200, `item with id ${id} updated successfully!`);
                     }
                     else {
                         console.error(err);
-                        return formResponse(res, 500,  'An error occured');
+                        return formResponse(res, 500, 'An error occured');
                     }
                 });
             }
             else {
-                return formResponse(res, 404,  'Item not found!');
+                return formResponse(res, 404, 'Item not found!');
             }
         }
         else {
@@ -107,30 +136,30 @@ exports.getItemSearchAndSort = (req, res) => {
     cond.page = cond.page || 1;
     cond.offset = (cond.page - 1) * cond.limit;
 
-    itemModel.getItemSearchAndSort(cond ,(err, results, _field) => {
-        if(!err) {  
-            if(!err) {
+    itemModel.getItemSearchAndSort(cond, (err, results, _field) => {
+        if (!err) {
+            if (!err) {
                 return formResponse(res, 200, 'List of items', results);
             } else {
                 return formResponse(res, 404, 'Item not found');
             }
-        } 
+        }
         else {
             console.log(err);
             return formResponse(res, 400, `Error: ${err}`);
         }
-        
+
     });
 };
 
 exports.getDetailItem = (req, res) => {
-    const {id:stringId} = req.params;
+    const { id: stringId } = req.params;
     const id = parseInt(stringId);
     itemModel.getItemById(id, (err, results, _fields) => {
-        if(!err){
-            if(results.length > 0) {
+        if (!err) {
+            if (results.length > 0) {
                 const item = results[0];
-                if(item.images !== null && !item.images.startsWith('http')) {
+                if (item.images !== null && !item.images.startsWith('http')) {
                     item.images = `${APP_URL}${item.images}`;
                 }
                 const data = {
@@ -141,7 +170,7 @@ exports.getDetailItem = (req, res) => {
                     delivery_on: '',
                     quantity: '',
                     variants: [],
-                    created_at : '',
+                    created_at: '',
                     updated_at: '',
                     ...results[0]
                 };
@@ -169,10 +198,10 @@ exports.getDetailItem = (req, res) => {
 };
 
 exports.getItemByCategory = (req, res) => {
-    const {id:stringId} = req.params;
+    const { id: stringId } = req.params;
     const id = parseInt(stringId);
     itemModel.getItemsByCategory(id, (err, results, _fields) => {
-        if(!err) {
+        if (!err) {
             return formResponse(res, 200, 'Item with category ', results);
         }
         else {
@@ -182,13 +211,13 @@ exports.getItemByCategory = (req, res) => {
 };
 
 exports.deleteItem = (req, res) => {
-    const {id:stringId} = req.params;
+    const { id: stringId } = req.params;
     const id = parseInt(stringId);
     itemModel.getItemById(id, (err, results, _fields) => {
-        if(!err) {
-            if(results.length > 0) {
-                itemModel.deleteItem(id, (err,results, _fields) => {
-                    if(!err) {
+        if (!err) {
+            if (results.length > 0) {
+                itemModel.deleteItem(id, (err, results, _fields) => {
+                    if (!err) {
                         return formResponse(res, 200, `item with id ${id} has been deleted!`);
                     }
                     else {

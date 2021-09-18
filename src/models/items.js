@@ -2,8 +2,8 @@
 const myDb = require('../helpers/myDb');
 const { promisify } = require('util');
 const execPromise = promisify(myDb.query).bind(myDb);
-exports.getItems = (cb) => {
-    myDb.query('select items.id, items.name as product_name, items.images, items.price, items.created_at from items', cb);
+exports.getItems = (cond) => {
+    return execPromise(`select items.id, items.name as product_name, items.images, items.price, items.created_at from items ORDER BY items.created_at DESC LIMIT ${cond.limit} OFFSET ${cond.offset}`, [cond.limit, cond.offset])
 };
 
 exports.addItem = (data, cb) => {
@@ -17,8 +17,8 @@ INNER JOIN item_variants on item_variants.id_item = items.id
 INNER Join variants on item_variants.id_variant = variants.id where items.id = ?`, [id], cb);
 };
 
-exports.updateItem = (data,id, cb) => {
-    myDb.query(`update items set ? where id=?`, [data,id], cb);
+exports.updateItem = (data, id, cb) => {
+    myDb.query(`update items set ? where id=?`, [data, id], cb);
 };
 
 exports.deleteItem = (id, cb) => {
@@ -41,3 +41,7 @@ exports.getItembyIdTrx = (id, cb) => {
     SELECT id, name, price from items WHERE id IN (?)
     `, [id], cb);
 };
+
+exports.getProductCount = (cb) => {
+    return execPromise(`select count(items.id) as count_item from items`, cb);
+}
