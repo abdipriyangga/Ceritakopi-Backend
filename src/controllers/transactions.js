@@ -1,8 +1,8 @@
-const {response:formResponse} = require('../helpers/formResponse');
-const {codeTransaction} = require('../helpers/transactions');
-const {getItembyIdTrx} = require('../models/items');
-const {createTransaction, createProductTransaction, getTransactionById, getTransactionDetail } = require('../models/transactions');
-const {getUserById} = require('../models/auth');
+const { response: formResponse } = require('../helpers/formResponse');
+const { codeTransaction } = require('../helpers/transactions');
+const { getItembyIdTrx } = require('../models/items');
+const { createTransaction, createProductTransaction, getTransactionById, getTransactionDetail } = require('../models/transactions');
+const { getUserById } = require('../models/auth');
 
 exports.createTransaction = (req, res) => {
     const data = req.body;
@@ -38,11 +38,13 @@ exports.createTransaction = (req, res) => {
                                     price: item.price,
                                     amount: data.item_amount[idx],
                                     id_item: item.id,
-                                    id_transaction: results.insertId
+                                    id_transaction: results.insertId,
+                                    variants: data.item_variant[idx]
                                 };
                                 console.log(dataFinal);
+                                console.log("variants data: ", dataFinal.variants);
                                 createProductTransaction(dataFinal, (err) => {
-                                    if(err) throw err;
+                                    if (err) throw err;
                                 });
                             });
                             return formResponse(res, 200, 'transaction success');
@@ -68,7 +70,7 @@ exports.getTransactionById = (req, res) => {
             return formResponse(res, 404, 'History not found');
         }
         if (!err) {
-            return formResponse(res,  200, 'History Transaction', results);
+            return formResponse(res, 200, 'History Transaction', results);
         } else {
             console.log(err);
             return formResponse(res, 404, 'History not found');
@@ -80,7 +82,7 @@ exports.getTransactionDetail = (req, res) => {
     const { id } = req.params;
     getTransactionDetail(id, (err, results) => {
         if (!err) {
-            formResponse(res, 200,'History Detail', results);
+            formResponse(res, 200, 'History Detail', results);
         } else {
             formResponse(res, 404, 'History not found');
         }

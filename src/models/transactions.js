@@ -10,8 +10,8 @@ exports.createTransaction = (data, cb) => {
 
 exports.createProductTransaction = (data, cb) => {
     myDb.query(`
-    INSERT INTO items_transaction (name, price, amount, id_item, id_transaction) VALUES (?,?,?,?,?)
-    `, [data.name, data.price, data.amount, data.id_item, data.id_transaction], cb);
+    INSERT INTO items_transaction (name, variants, price, amount, id_item, id_transaction) VALUES (?,?,?,?,?,?)
+    `, [data.name, data.variants, data.price, data.amount, data.id_item, data.id_transaction], cb);
 };
 
 exports.getTransactionById = (id, cb) => {

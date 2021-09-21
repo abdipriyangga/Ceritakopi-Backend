@@ -5,7 +5,7 @@ const table = 'categories';
 const execPromise = promisify(myDb.query).bind(myDb);
 
 exports.getCategories = () => {
-    return execPromise(`select name from ${table}`, )
+    return execPromise(`select id, name from ${table}`,)
 };
 
 exports.addCategories = (data) => {
@@ -16,7 +16,7 @@ exports.getCategoriesById = (id) => {
     return execPromise(`select * from ${table} where id = ${id}`);
 };
 
-exports.updateCategories = (data,id) => {
+exports.updateCategories = (data, id) => {
     return execPromise(`update ${table} set ? where id=?`, [data, id]);
 };
 

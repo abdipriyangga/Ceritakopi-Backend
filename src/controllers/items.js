@@ -10,7 +10,7 @@ const { APP_URL, APP_UPLOAD_ROUTE } = process.env;
 
 exports.getItems = async (req, res) => {
     const cond = req.query;
-    cond.limit = cond.limit || 7;
+    cond.limit = cond.limit || 12;
     cond.offset = cond.offset || 0;
     cond.page = cond.page || 1;
     cond.offset = (cond.page - 1) * cond.limit;
@@ -36,12 +36,6 @@ exports.getItems = async (req, res) => {
             cond.page > 1
                 ? `${APP_URL}/items?page=${cond.page - 1}`
                 : null
-
-        // const dataResults = [
-        //     ...results,
-        //     pageInfo,
-        // ]
-        // console.log(dataResults);
         return formResponse(res, 200, 'List of items', results, pageInfo);
     } catch (error) {
         return formResponse(res, 500, 'An error occured!', error);
@@ -53,47 +47,51 @@ exports.addItem = (req, res) => {
         validateInteger(res, req.body.price, 'Price', () => {
             validateInteger(res, req.body.quantity, 'Quantity', () => {
                 req.body.images = path.join(process.env.APP_UPLOAD_ROUTE, req.file.filename);
-                itemModel.addItem(req.body, (err, results, _fields) => {
-                    if (!err) {
-                        if (results.affectedRows > 0) {
-                            if (req.body.category) {
-                                if (typeof req.body.category !== 'object') {
-                                    req.body.category = [req.body.category];
-                                }
-                                if (typeof req.body.variant !== 'object') {
-                                    req.body.variant = [req.body.variant];
-                                }
-                                if (typeof req.body.priceVariant !== 'object') {
-                                    req.body.priceVariant = [req.body.priceVariant];
-                                }
-                                req.body.category.forEach(category => {
-                                    const data = {
-                                        id_item: results.insertId,
-                                        id_category: category
-                                    };
-                                    addItemCategory(data, () => {
-                                        console.log(`item ${results.insertId} add to category ${category}`);
+                try {
+                    itemModel.addItem(req.body, (err, results, _fields) => {
+                        if (!err) {
+                            if (results.affectedRows > 0) {
+                                if (req.body.category) {
+                                    if (typeof req.body.category !== 'object') {
+                                        req.body.category = [req.body.category];
+                                    }
+                                    if (typeof req.body.variant !== 'object') {
+                                        req.body.variant = [req.body.variant];
+                                    }
+                                    if (typeof req.body.priceVariant !== 'object') {
+                                        req.body.priceVariant = [req.body.priceVariant];
+                                    }
+                                    req.body.category.forEach(category => {
+                                        const data = {
+                                            id_item: results.insertId,
+                                            id_category: category
+                                        };
+                                        addItemCategory(data, () => {
+                                            console.log(`item ${results.insertId} add to category ${category}`);
+                                        });
                                     });
-                                });
-                                req.body.variant.forEach((idVariant, idx) => {
-                                    const data = {
-                                        id_item: results.insertId,
-                                        id_variant: idVariant,
-                                        additional_price: req.body.priceVariant[idx]
-                                    };
-                                    addItemVariant(data, () => {
-                                        console.log(`${idVariant}`);
+                                    req.body.variant.forEach((idVariant, idx) => {
+                                        const data = {
+                                            id_item: results.insertId,
+                                            id_variant: idVariant,
+                                            additional_price: req.body.priceVariant[idx]
+                                        };
+                                        addItemVariant(data, () => {
+                                            console.log(`id variant: ${idVariant}`);
+                                        });
                                     });
-                                });
+                                }
+                                return formResponse(res, 200, 'Create item has been successfully!');
+                            } else {
+                                return formResponse(res, 500, 'An error occured');
                             }
-                            return formResponse(res, 200, 'Create item has been successfully!');
                         } else {
-                            return formResponse(res, 500, 'An error occured');
+                            return formResponse(res, 400, `Error: ${err.sqlMassege}`);
                         }
-                    } else {
-                        return formResponse(res, 400, `Error: ${err.sqlMassege}`);
-                    }
-                });
+                    });
+                } catch (error) {
+                    return formResponse(res, 400, `Error: ${error.sqlMassege}`, error);
+                }
             });
         });
     });
@@ -174,7 +172,7 @@ exports.getDetailItem = (req, res) => {
                     updated_at: '',
                     ...results[0]
                 };
-                const hiddenColoumn = ['base_price', 'additional_price', 'end_price', 'variant_name', 'code'];
+                const hiddenColoumn = ['additional_price', 'end_price', 'variant_name', 'code'];
                 hiddenColoumn.forEach(column => {
                     delete data[column];
                 });
