@@ -10,7 +10,7 @@ exports.createTransaction = (req, res) => {
         data.id_item = [data.id_item];
         data.item_amount = [data.item_amount];
     }
-    getItembyIdTrx(data.id_item.map(id => parseInt(id)), (err, items) => {
+    getItembyIdTrx(data.id_item.map((id) => parseInt(id)), (err, items) => {
         if (!err) {
             const code = codeTransaction(process.env.APP_TRANSACTION_PREFIX, 1);
             const total = items.map((item, idx) => item.price * data.item_amount[idx]).reduce((acc, curr) => acc + curr);

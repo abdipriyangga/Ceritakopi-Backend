@@ -178,11 +178,17 @@ exports.getDetailItem = (req, res) => {
                 });
                 results.forEach(item => {
                     data.variants.push({
+                        id: item.id,
+                        images: item.images,
+                        id_variant: item.id_variant,
+                        item_name: item.name,
                         name: item.variant_name,
                         code: item.code,
+                        base_price: item.base_price,
                         price: item.end_price
                     });
                 });
+                console.log(data);
                 return formResponse(res, 200, 'Detail Item', data);
             }
             else {

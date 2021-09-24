@@ -1,5 +1,7 @@
 const myDb = require('../helpers/myDb');
 const table = 'transactions';
+const { promisify } = require('util');
+const execPromise = promisify(myDb.query).bind(myDb);
 
 exports.createTransaction = (data, cb) => {
     myDb.query(`
@@ -16,7 +18,9 @@ exports.createProductTransaction = (data, cb) => {
 
 exports.getTransactionById = (id, cb) => {
     myDb.query(`
-    SELECT id, code_transaction, total, tax, shipping_cost, shipping_address, payment_method FROM ${table} where id_user = ?
+    SELECT items_transaction.name AS item_name, transactions.id, transactions.code_transaction, transactions.total, transactions.tax, transactions.shipping_cost, transactions.shipping_address, transactions.payment_method  FROM ${table}
+    LEFT JOIN items_transaction ON items_transaction.id_transaction = transactions.id
+    where transactions.id_user = ?;
     `, [id], cb);
 };
 
@@ -24,4 +28,9 @@ exports.getTransactionDetail = (id, cb) => {
     myDb.query(`
     SELECT items_transaction.id_transaction, name, price, amount FROM items_transaction
     WHERE items_transaction.id_transaction = ?`, [id], cb);
+};
+
+exports.createTransactionPromise = (data) => {
+    return execPromise(`INSERT INTO ${table} (code_transaction, id_user, total, tax, shipping_cost, shipping_address, payment_method)
+    VALUES (?,?,?,?,?,?,?)`, [data.code, data.id_user, data.total, data.tax, data.shipping_cost, data.shipping_address, data.payment_method])
 };
