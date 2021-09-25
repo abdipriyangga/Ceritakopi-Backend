@@ -1,6 +1,6 @@
 const userModel = require('../models/users');
 const { response: formResponse } = require('../helpers/formResponse');
-const { APP_URL } = process.env;
+const { APP_URL, APP_UPLOAD_ROUTE } = process.env;
 
 exports.getUserProfile = (req, res) => {
     userModel.getUserById(req.authUser.id, (err, results) => {
@@ -19,21 +19,29 @@ exports.getUserProfile = (req, res) => {
 };
 
 exports.updateProfile = (req, res) => {
-    console.log("ini id user yang login: ", req.authUser.id);
     userModel.getUserById(req.authUser.id, (err, results, _fields) => {
         if (!err) {
             if (results.length > 0) {
-                const { name, email, address, phone_number } = req.body;
-                const data = { name, email, address, phone_number };
-                userModel.updateProfile(data, req.authUser.id, (err, resultsNew, _fields) => {
-                    if (!err) {
-                        return formResponse(res, 200, `Profile updated successfully!`, data);
-                    }
-                    else {
-                        console.error(err);
-                        return formResponse(res, 500, 'An error occured');
-                    }
-                });
+                req.body.images = req.file ? `${APP_UPLOAD_ROUTE}/${req.file.filename}` : null;
+                const { name, email, address, phone_number, images } = req.body;
+                if (images) {
+                    const data = { name, email, address, phone_number, images };
+                    userModel.updateProfile(data, req.authUser.id, (err, resultsNew, _fields) => {
+                        if (!err) {
+                            if (results[0].images !== null) {
+                                const path = results[0].images;
+                                const newPath = path.split('/');
+                                return formResponse(res, 200, `Profile updated successfully!`, data);
+                            } else {
+                                return formResponse(res, 200, `Profile updated successfully!`, data);
+                            }
+                        }
+                        else {
+                            console.error(err);
+                            return formResponse(res, 500, 'An error occured');
+                        }
+                    });
+                }
             }
             else {
                 return formResponse(res, 404, 'User not found!');

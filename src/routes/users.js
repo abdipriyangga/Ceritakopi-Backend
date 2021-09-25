@@ -8,7 +8,7 @@ const upload = require('../helpers/upload');
 
 
 userRouter.get('/', auth, userController.getUserProfile);
-userRouter.put('/', auth, userController.updateProfile);
+userRouter.put('/', auth, upload, userController.updateProfile);
 
 chatRouter.get('/chats/all', auth, chatController.getChatRoom);
 chatRouter.post('/chats', auth, chatController.createChat);
