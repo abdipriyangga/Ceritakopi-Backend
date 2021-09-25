@@ -1,3 +1,5 @@
-/node_modules
+node_modules
 .eslintrc.js
 .env.deploy
+public/images/1632609489419.jpg
+public/images/1632609837436.jpg
