@@ -18,11 +18,7 @@ exports.getItems = async (req, res) => {
     const countResult = await itemModel.getProductCount();
     const pageInfo = {};
     try {
-
-        // console.log('total items: ', countResult[0].count_item);
-
         const totalItems = countResult[0].count_item;
-        // console.log(totalItems);
         const lastPage = Math.ceil(totalItems / cond.limit);
         pageInfo.totalItems = totalItems
         pageInfo.currentPage = cond.page
