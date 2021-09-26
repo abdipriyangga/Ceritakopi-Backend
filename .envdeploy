@@ -1,0 +1,12 @@
+PORT    = 8090
+DB_HOST = ec2-54-236-24-175.compute-1.amazonaws.com
+DB_USER = fm22abdi
+DB_PASS = XWPLM5
+DB      = fm22abdi_coffeshop
+
+APP_KEY = batch22
+APP_URL = http://localhost:8090
+APP_UPLOAD_ROUTE = /upload
+APP_UPLOAD_PATH =public/images
+
+APP_TRANSACTION_PREFIX = CS
