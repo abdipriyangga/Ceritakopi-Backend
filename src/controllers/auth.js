@@ -1,18 +1,18 @@
 /* eslint-disable no-undef */
 const authModel = require('../models/auth');
-const {response} = require('../helpers/formResponse');
+const { response } = require('../helpers/formResponse');
 const bycrpt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {APP_SECRET_KEY} = process.env;
+const { APP_SECRET_KEY } = process.env;
 const nodemailer = require('nodemailer');
 const regex = require('../helpers/validation');
-
+console.log(APP_SECRET_KEY);
 exports.signup = async (req, res) => {
     const data = req.body;
     const checkEmail = await authModel.getUserByEmail(data.email);
     if (checkEmail.length > 0) {
         return response(res, 401, "Email already exist!")
-    } 
+    }
     const checkPhoneNumber = await authModel.getUserByPhoneNumber(data.phone_number);
     if (checkPhoneNumber.length > 0) {
         return response(res, 401, "Phone number already exist!")
@@ -28,37 +28,41 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const {email, password} = req.body;
+    const { email, password } = req.body;
     const checkEmail = await authModel.getUserByEmail(email)
-
-    if(checkEmail.length < 1) {
-        return response(res, 404, "email not found!")
-    } 
-    const user = checkEmail[0];
-    // console.log('data user: ', user);
-    const compare = await bycrpt.compare(password, user.password);
-    if(user.role === 'admin') {
-        if (compare) {
-            const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, APP_SECRET_KEY, { expiresIn: '1h' });
-            return response(res, 200, 'Login Admin Success!', { token });
-        } else {
-            return response(res, 401, 'Wrong email or password!');
+    try {
+        if (checkEmail.length < 1) {
+            return response(res, 404, "email not found!")
         }
-    } 
-    if (user.role === 'customer') {
-        if (compare) {
-            const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, APP_SECRET_KEY, { expiresIn: '1h' });
-            return response(res, 200, 'Login Success!', { token });
-        } else {
-            return response(res, 401, 'Wrong email or password!');
+        const user = checkEmail[0];
+        console.log('data user: ', user);
+        const compare = await bycrpt.compare(password, user.password);
+        if (user.role === 'admin') {
+            if (compare) {
+                const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, APP_SECRET_KEY, { expiresIn: '1h' });
+                return response(res, 200, 'Login Admin Success!', { token });
+            } else {
+                return response(res, 401, 'Wrong email or password!');
+            }
         }
+        if (user.role === 'customer') {
+            if (compare) {
+                const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, APP_SECRET_KEY, { expiresIn: '1h' });
+                return response(res, 200, 'Login Success!', { token });
+            } else {
+                return response(res, 401, 'Wrong email or password!');
+            }
+        }
+    } catch (error) {
+        console.log("why error: ", error);
     }
-    
+
+
 };
 
 // exports.forgotPassword  = async (req, res) => {
 //     const{email} = req.body;
-    
+
 //     const checkEmail = await authModel.checkEmail(email);
 //     try {
 //         if (checkEmail.length < 1) {
