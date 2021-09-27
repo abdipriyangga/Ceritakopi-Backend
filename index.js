@@ -3,12 +3,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const socket = require('./src/helpers/middlewares/socket');
-
+const { APP_URL, APP_URL_FE } = process.env;
 const app = express();
 const port = process.env.PORT || '8090';
 const mainRouter = require('./src/routes/index');
 const server = require('http').createServer(app);
-const whiteList = ['https://cerita-kopi.netlify.app', 'https://ceritakopi-backend.herokuapp.com', 'http://localhost:8090'];
+const whiteList = [APP_URL_FE, APP_URL];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whiteList.indexOf(origin) !== -1) {
