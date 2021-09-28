@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || '8090';
 const mainRouter = require('./src/routes/index');
 const server = require('http').createServer(app);
-const whiteList = [APP_URL_FE, APP_URL];
+const whiteList = ['https://cerita-kopi.netlify.app', APP_URL];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whiteList.indexOf(origin) !== -1) {
