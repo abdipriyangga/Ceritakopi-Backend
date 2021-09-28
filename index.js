@@ -20,7 +20,8 @@ const corsOptions = {
 }
 const io = require('socket.io')(server, {
   cors: {
-    origin: corsOptions
+    origin: corsOptions,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
   }
 });
 
