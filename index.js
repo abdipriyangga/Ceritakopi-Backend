@@ -8,20 +8,10 @@ const app = express();
 const port = process.env.PORT || '8090';
 const mainRouter = require('./src/routes/index');
 const server = require('http').createServer(app);
-const whiteList = [APP_URL_FE, APP_URL_LOCAL];
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whiteList.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
+
 const io = require('socket.io')(server, {
   cors: {
-    origin: corsOptions,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE"
+    origin: "https://cerita-kopi.netlify.app"
   }
 });
 
