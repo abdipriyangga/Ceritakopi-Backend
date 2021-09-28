@@ -20,7 +20,7 @@ const corsOptions = {
 }
 const io = require('socket.io')(server, {
   cors: {
-    origin: corsOptions
+    origin: 'https://cerita-kopi.netlify.app'
   }
 });
 
