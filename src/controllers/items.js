@@ -6,7 +6,7 @@ const { addItemCategory } = require('../models/itemCategories');
 const itemImage = require('../helpers/upload');
 const path = require('path');
 const { addItemVariant } = require('../models/itemVariants');
-const { APP_URL, APP_UPLOAD_ROUTE } = process.env;
+const { APP_URL, APP_UPLOAD_ROUTE, APP_URL_LOCAL } = process.env;
 
 exports.getItems = async (req, res) => {
     const cond = req.query;
@@ -154,7 +154,7 @@ exports.getDetailItem = (req, res) => {
             if (results.length > 0) {
                 const item = results[0];
                 if (item.images !== null && !item.images.startsWith('http')) {
-                    item.images = `${APP_URL}${item.images}`;
+                    item.images = `${APP_URL_LOCAL}${item.images}`;
                 }
                 const data = {
                     id: '',

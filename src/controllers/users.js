@@ -10,7 +10,17 @@ exports.getUserProfile = (req, res) => {
                     results[index].images = `${APP_URL}${results[index].images}`;
                 }
             });
-            return formResponse(res, 200, 'Profile Detail', results);
+            const data = {
+                id: '',
+                role: '',
+                name: '',
+                images: '',
+                email: '',
+                address: '',
+                phone_number: '',
+                ...results[0]
+            }
+            return formResponse(res, 200, 'Profile Detail', data);
         }
         else {
             return formResponse(res, 404, 'Profile not Found');
