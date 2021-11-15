@@ -1,7 +1,7 @@
 const { response: formResponse } = require('../helpers/formResponse');
 const { codeTransaction } = require('../helpers/transactions');
 const { getItembyIdTrx } = require('../models/items');
-const { createTransaction, createProductTransaction, getTransactionById, getTransactionDetail } = require('../models/transactions');
+const { createTransaction, createProductTransaction, getTransactionById, getTransactionDetail, getTransactionId, deleteHistory } = require('../models/transactions');
 const { getUserById } = require('../models/auth');
 
 exports.createTransaction = (req, res) => {
@@ -12,30 +12,33 @@ exports.createTransaction = (req, res) => {
     }
     getItembyIdTrx(data.id_item.map((id) => parseInt(id)), (err, items) => {
         if (!err) {
-            const code = codeTransaction(process.env.APP_TRANSACTION_PREFIX, 1);
-            const total = items.map((item, idx) => item.price * data.item_amount[idx]).reduce((acc, curr) => acc + curr);
-            const tax = total * (10 / 100);
-            const shippingCost = 10000;
-            const paymentMethod = data.payment_method;
             const idUser = req.authUser.id;
             getUserById(idUser, (err, results) => {
                 if (!err) {
+                    const code = codeTransaction(process.env.APP_TRANSACTION_PREFIX, 1);
+                    const price = items.map((item, idx) => item.price * data.item_amount[idx]).reduce((acc, curr) => acc + curr);
+                    const tax = price * (10 / 100);
+                    const shippingCost = 10000;
+                    const paymentMethod = data.payment_method;
                     const shippingAddress = results[0].address;
+                    const total = price + tax + shippingCost;
                     const finalData = {
                         code,
-                        total,
+                        total: total,
                         tax,
                         shipping_cost: shippingCost,
                         shipping_address: shippingAddress,
                         payment_method: paymentMethod,
                         id_user: idUser
                     };
+                    console.log("FINAL DATA: ", finalData);
                     createTransaction(finalData, (err, results) => {
                         if (!err) {
                             items.forEach((item, idx) => {
                                 const dataFinal = {
                                     name: item.name,
                                     price: item.price,
+                                    total: total,
                                     amount: data.item_amount[idx],
                                     id_item: item.id,
                                     id_transaction: results.insertId,
@@ -88,3 +91,14 @@ exports.getTransactionDetail = (req, res) => {
         }
     });
 };
+
+exports.deleteHistory = async (req, res) => {
+    const { id } = req.params;
+    const results = await getTransactionId(id);
+    if (results.length > 0) {
+        await deleteHistory(id)
+        return formResponse(res, 200, 'history has been deleted!');
+    } else {
+        return formResponse(res, 404, 'history not found!');
+    }
+}
