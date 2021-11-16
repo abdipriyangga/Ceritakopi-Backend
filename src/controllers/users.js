@@ -19,7 +19,6 @@ exports.getUserProfile = (req, res) => {
                 address: '',
                 phone_number: '',
                 gender: '',
-                tanggal_lahir: '',
                 ...results[0]
             }
             return formResponse(res, 200, 'Profile Detail', data);
@@ -35,9 +34,9 @@ exports.updateProfile = (req, res) => {
         if (!err) {
             if (results.length > 0) {
                 req.body.images = req.file ? `${APP_UPLOAD_ROUTE}/${req.file.filename}` : null;
-                const { name, email, address, phone_number, images, gender, tanggal_lahir } = req.body;
+                const { name, email, address, phone_number, images, gender } = req.body;
                 if (images) {
-                    const data = { name, email, address, phone_number, images, gender, tanggal_lahir };
+                    const data = { name, email, address, phone_number, images, gender };
                     userModel.updateProfile(data, req.authUser.id, (err, resultsNew, _fields) => {
                         if (!err) {
                             if (results[0].images !== null) {
