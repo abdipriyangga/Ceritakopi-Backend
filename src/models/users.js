@@ -29,7 +29,7 @@ exports.getUserIdAsync = (id) => {
 };
 exports.getUserById = (id, cb) => {
     myDb.query(`
-    SELECT id, role, name, images, email, address, phone_number FROM users WHERE id = ?
+    SELECT id, role, name, images, email, address, phone_number, gender, tanggal_lahir FROM users WHERE id = ?
     `, [id], cb);
 };
 exports.updateProfile = (data, id, cb) => {
