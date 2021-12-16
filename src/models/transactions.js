@@ -27,7 +27,9 @@ exports.getTransactionById = (id, cb) => {
 
 exports.getTransactionDetail = (id, cb) => {
     myDb.query(`
-    SELECT items_transaction.id_transaction, name, price, amount FROM items_transaction
+    SELECT items_transaction.id_transaction, items_transaction.name, items_transaction.price, items_transaction.amount, transactions.code_transaction, transactions.total, transactions.tax, transactions.shipping_cost,transactions.shipping_address, transactions.payment_method, items.images FROM items_transaction
+    LEFT JOIN transactions ON transactions.id = items_transaction.id_transaction
+    LEFT JOIN items ON items_transaction.id_item = items.id
     WHERE items_transaction.id_transaction = ?`, [id], cb);
 };
 
