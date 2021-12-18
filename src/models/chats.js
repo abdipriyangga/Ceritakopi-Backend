@@ -18,7 +18,7 @@ exports.updateChat = (data, cb) => {
 };
 
 exports.checkPhoneNumber = (data, cb) => {
-  db.query('SELECT * from users WHERE phone_number=?', [data.phone_number], cb)
+    db.query('SELECT * from users WHERE phone_number=?', [data.phone_number], cb)
 };
 
 exports.getAllChatRoom = (data, cb) => {
@@ -30,11 +30,17 @@ exports.getAllChatRoom = (data, cb) => {
 };
 
 exports.getUserChat = (data, cb) => {
+    // db.query(`
+    // SELECT users.id as id_users, chats.id, chats.message, chats.sender, chats.recipient, users.name, users.images
+    // FROM chats LEFT JOIN users ON (chats.recipient = users.phone_number or chats.sender=users.phone_number)
+    // WHERE (chats.sender=? or chats.recipient=?)
+    // AND isLatest = 1 order by chats.id desc
+    // `, [data.sender, data.recipient], cb)
     db.query(`
-    SELECT users.id as id_users, chats.id, chats.message, chats.sender, chats.recipient, users.name, users.images
-    FROM chats LEFT JOIN users ON (chats.recipient = users.phone_number or chats.sender=users.phone_number)
-    WHERE (chats.sender=? or chats.recipient=?)
-    AND isLatest = 1
+        SELECT users.id as id_users, chats.id, chats.message, chats.sender, chats.recipient, users.name, users.images
+        FROM chats LEFT JOIN users ON chats.recipient = users.phone_number 
+        WHERE (chats.sender=? OR chats.recipient=?) 
+        AND isLatest = 1 order by chats.id desc
     `, [data.sender, data.recipient], cb)
 };
 
